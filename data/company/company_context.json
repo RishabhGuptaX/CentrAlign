@@ -1,0 +1,7 @@
+{
+  "company_name": "DemoCorp",
+  "policies": {
+    "invoice_updates_require_verification": true,
+    "high_value_updates_require_human_approval": true
+  }
+}

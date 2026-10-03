@@ -1,0 +1,10 @@
+{
+    "invoice_id": "GLOBEX-2026-001",
+    "company": "Globex Corporation",
+    "invoice_date": "2026-09-20",
+    "amount": 61500.00,
+    "currency": "INR",
+    "due_date": "2026-10-20",
+    "status": "unpaid",
+    "description": "Data analytics services"
+}

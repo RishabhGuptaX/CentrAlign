@@ -1,0 +1,10 @@
+{
+    "invoice_id": "ACME-2026-001",
+    "company": "Acme Corporation",
+    "invoice_date": "2026-08-10",
+    "amount": 45000.00,
+    "currency": "INR",
+    "due_date": "2026-09-09",
+    "status": "unpaid",
+    "description": "Cloud infrastructure services"
+}

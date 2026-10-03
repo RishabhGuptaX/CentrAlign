@@ -1,0 +1,10 @@
+{
+    "invoice_id": "INITECH-2026-001",
+    "company": "Initech",
+    "invoice_date": "2026-09-18",
+    "amount": 38000.00,
+    "currency": "INR",
+    "due_date": "2026-10-18",
+    "status": "unpaid",
+    "description": "Technical consulting services"
+}

@@ -1,0 +1,13 @@
+{
+  "company_name": "CentrAlign Demo Corporation",
+  "policies": {
+    "invoice_updates_require_verification": true,
+    "high_value_threshold": 75000,
+    "high_value_updates_require_human_approval": true,
+    "allowed_invoice_statuses": [
+      "unpaid",
+      "paid",
+      "overdue"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "invoice_id": "ACME-2026-003",
+    "company": "Acme Corporation",
+    "invoice_date": "2026-09-25",
+    "amount": 84500.00,
+    "currency": "INR",
+    "due_date": "2026-10-25",
+    "status": "unpaid",
+    "description": "Enterprise AI platform services"
+}
