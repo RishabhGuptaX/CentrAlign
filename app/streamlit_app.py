@@ -1,4 +1,4 @@
-﻿import html
+import html
 import sys
 from pathlib import Path
 
@@ -30,9 +30,9 @@ st.set_page_config(
 
 def money(value):
     try:
-        return f"â‚¹{float(value):,.0f}"
+        return f"₹{float(value):,.0f}"
     except Exception:
-        return "â€”"
+        return "—"
 
 
 def step_core(step):
@@ -123,7 +123,7 @@ def step_detail(step):
         if isinstance(invoice, dict):
             return (
                 f"Extracted {money(invoice.get('amount'))} "
-                f"with due date {invoice.get('due_date', 'â€”')}."
+                f"with due date {invoice.get('due_date', '—')}."
             )
 
         return "Read the invoice and extracted the required fields."
@@ -591,7 +591,7 @@ if isinstance(result, dict):
         with c3:
             st.metric(
                 "Approval threshold",
-                "â‚¹75,000",
+                "₹75,000",
             )
 
         st.caption(
@@ -848,7 +848,7 @@ if isinstance(result, dict):
         if (
             tool == "update_finance_system"
             and (
-                "â€”" in detail_text
+                "—" in detail_text
                 or "corrected" in detail_text.lower()
             )
             and index > 3
@@ -889,28 +889,24 @@ if isinstance(result, dict):
 
             st.success(
                 "Verified",
-                icon="âœ…",
             )
 
         elif verified_step is False:
 
             st.warning(
                 "Mismatch detected",
-                icon="âš ï¸",
             )
 
         elif success_value is False:
 
             st.error(
                 "Failed",
-                icon="âŒ",
             )
 
         else:
 
             st.success(
                 "Completed",
-                icon="âœ…",
             )
 
     if recovery_used:
@@ -944,7 +940,7 @@ if isinstance(result, dict):
                 str(
                     invoice.get(
                         "invoice_id",
-                        "â€”",
+                        "—",
                     )
                 ),
             )
@@ -965,14 +961,14 @@ if isinstance(result, dict):
                 str(
                     invoice.get(
                         "due_date",
-                        "â€”",
+                        "—",
                     )
                 ),
             )
 
         st.caption(
-            f"Company: {invoice.get('company', 'â€”')}  â€¢  "
-            f"Status: {invoice.get('status', 'â€”')}"
+            f"Company: {invoice.get('company', '—')}  •  "
+            f"Status: {invoice.get('status', '—')}"
         )
 
     else:
@@ -990,14 +986,12 @@ if isinstance(result, dict):
 
         st.info(
             "Human oversight was required and handled.",
-            icon="ðŸ‘¤",
         )
 
     elif status == "awaiting_human_approval":
 
         st.warning(
             "Waiting for human approval.",
-            icon="ðŸ‘¤",
         )
 
     else:
