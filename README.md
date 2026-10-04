@@ -1,1934 +1,1390 @@
-# \# CentrAlign AI — Autonomous AI Task Worker
+# CentrAlign AI — Autonomous AI Task Worker
 
-# 
+> A narrow, working prototype of an autonomous AI worker that turns a natural-language business goal into completed work using planning, tool execution, policy enforcement, human approval, failure recovery, and independent verification.
 
-# > A narrow, working prototype of an autonomous AI worker that turns a natural-language business goal into completed work using planning, tool execution, policy enforcement, human approval, failure recovery, and independent verification.
+**Live Demo:** https://centralign-project.streamlit.app/  
 
-# 
+**GitHub:** https://github.com/RishabhGuptaX/CentrAlign
 
-# \*\*Live Demo:\*\* https://centralign-project.streamlit.app/  
+---
 
-# \*\*GitHub:\*\* https://github.com/RishabhGuptaX/CentrAlign
+## 1. Overview
 
-# 
+CentrAlign AI was built for the **CentrAlign AI Engineering Hiring Assessment**.
 
-# \---
+The system is organized around the following execution loop:
 
-# 
+**Goal → Understand → Plan → Execute → Observe → Adapt → Verify → Complete**
 
-# \## 1. Overview
+The user provides a business goal in natural language. The worker uses an LLM to generate a structured execution plan, executes that plan through a controlled tool layer, observes results, enforces company policy, requests human approval for sensitive actions, recovers from safe failures, and independently verifies the final business outcome.
 
-# 
+The current prototype intentionally focuses on a controlled invoice-processing environment. This keeps the scope narrow enough to demonstrate genuine autonomy and reliability rather than claiming unsupported enterprise capabilities.
 
-# CentrAlign AI was built for the \*\*CentrAlign AI Engineering Hiring Assessment\*\*.
+### What the worker demonstrates
 
-# 
+- Natural-language task understanding
 
-# The system is organized around the following execution loop:
+- LLM-based planning
 
-# 
+- Tool selection and execution
 
-# \*\*Goal → Understand → Plan → Execute → Observe → Adapt → Verify → Complete\*\*
+- Step-to-step context and parameter resolution
 
-# 
+- Policy enforcement
 
-# The user provides a business goal in natural language. The worker uses an LLM to generate a structured execution plan, executes that plan through a controlled tool layer, observes results, enforces company policy, requests human approval for sensitive actions, recovers from safe failures, and independently verifies the final business outcome.
+- Human-in-the-loop approval
 
-# 
+- Persistent pause/resume state
 
-# The current prototype intentionally focuses on a controlled invoice-processing environment. This keeps the scope narrow enough to demonstrate genuine autonomy and reliability rather than claiming unsupported enterprise capabilities.
+- Bounded retry for transient failures
 
-# 
+- Safe handling of semantic failures
 
-# \### What the worker demonstrates
+- Independent business-outcome verification
 
-# 
+- Verification failure recovery
 
-# \- Natural-language task understanding
+- Clarification for incomplete or ambiguous tasks
 
-# \- LLM-based planning
+- Structured execution evidence
 
-# \- Tool selection and execution
+- Human-readable execution summaries
 
-# \- Step-to-step context and parameter resolution
+---
 
-# \- Policy enforcement
+# 2. Problem
 
-# \- Human-in-the-loop approval
+Enterprise tasks often require a person to:
 
-# \- Persistent pause/resume state
+1\. Find information.
 
-# \- Bounded retry for transient failures
+2\. Decide what should happen next.
 
-# \- Safe handling of semantic failures
+3\. Perform an action in another system.
 
-# \- Independent business-outcome verification
+4\. Check whether the action actually worked.
 
-# \- Verification failure recovery
+5\. Recover when something goes wrong.
 
-# \- Clarification for incomplete or ambiguous tasks
+6\. Involve a human when an action is sensitive.
 
-# \- Structured execution evidence
+An LLM response alone does not complete this workflow.
 
-# \- Human-readable execution summaries
+CentrAlign treats the problem as **reliable task execution**, not simple question answering.
 
-# 
+For example, a user can provide:
 
-# \---
+> "Find the latest invoice from Acme, extract the amount and due date, enter it into the internal finance system, and verify that the update was completed correctly."
 
-# 
+The worker determines and executes the required sequence of actions.
 
-# \# 2. Problem
+---
 
-# 
+# 3. Current Prototype
 
-# Enterprise tasks often require a person to:
+The prototype uses a simulated company environment containing invoice data, finance records, and company policy.
 
-# 
+### Core execution flow
 
-# 1\. Find information.
+```text
 
-# 2\. Decide what should happen next.
+User Goal
 
-# 3\. Perform an action in another system.
+&#x20;  |
 
-# 4\. Check whether the action actually worked.
+&#x20;  v
 
-# 5\. Recover when something goes wrong.
+Task Understanding / Clarification
 
-# 6\. Involve a human when an action is sensitive.
+&#x20;  |
 
-# 
+&#x20;  v
 
-# An LLM response alone does not complete this workflow.
+LLM Planning
 
-# 
+&#x20;  |
 
-# CentrAlign treats the problem as \*\*reliable task execution\*\*, not simple question answering.
+&#x20;  v
 
-# 
+Tool Selection
 
-# For example, a user can provide:
+&#x20;  |
 
-# 
+&#x20;  v
 
-# > "Find the latest invoice from Acme, extract the amount and due date, enter it into the internal finance system, and verify that the update was completed correctly."
+Invoice Search
 
-# 
+&#x20;  |
 
-# The worker determines and executes the required sequence of actions.
+&#x20;  v
 
-# 
+Invoice Extraction
 
-# \---
+&#x20;  |
 
-# 
+&#x20;  v
 
-# \# 3. Current Prototype
+Policy Check
 
-# 
+&#x20;  |
 
-# The prototype uses a simulated company environment containing invoice data, finance records, and company policy.
+&#x20;  v
 
-# 
+Human Approval (when required)
 
-# \### Core execution flow
+&#x20;  |
 
-# 
+&#x20;  v
 
-# ```text
+Finance System Update
 
-# User Goal
+&#x20;  |
 
-# &#x20;  |
+&#x20;  v
 
-# &#x20;  v
+Observe Result
 
-# Task Understanding / Clarification
+&#x20;  |
 
-# &#x20;  |
+&#x20;  v
 
-# &#x20;  v
+Independent Verification
 
-# LLM Planning
+&#x20;  |
 
-# &#x20;  |
+&#x20;  v
 
-# &#x20;  v
+Recovery if necessary
 
-# Tool Selection
+&#x20;  |
 
-# &#x20;  |
+&#x20;  v
 
-# &#x20;  v
+Re-verification
 
-# Invoice Search
+&#x20;  |
 
-# &#x20;  |
+&#x20;  v
 
-# &#x20;  v
+Final Evidence
 
-# Invoice Extraction
+```
 
-# &#x20;  |
+Supported simulated companies include:
 
-# &#x20;  v
+- Acme
 
-# Policy Check
+- Globex
 
-# &#x20;  |
+- Initech
 
-# &#x20;  v
+---
 
-# Human Approval (when required)
+# 4. Architecture
 
-# &#x20;  |
+```text
 
-# &#x20;  v
+&#x20;                        +----------------------+
 
-# Finance System Update
+&#x20;                        |      User / UI       |
 
-# &#x20;  |
+&#x20;                        |    Streamlit App     |
 
-# &#x20;  v
+&#x20;                        +----------+-----------+
 
-# Observe Result
+&#x20;                                   |
 
-# &#x20;  |
+&#x20;                                   v
 
-# &#x20;  v
+&#x20;                        +----------------------+
 
-# Independent Verification
+&#x20;                        |   Execution Engine   |
 
-# &#x20;  |
+&#x20;                        |                      |
 
-# &#x20;  v
+&#x20;                        | Task understanding   |
 
-# Recovery if necessary
+&#x20;                        | State management     |
 
-# &#x20;  |
+&#x20;                        | Execution loop       |
 
-# &#x20;  v
+&#x20;                        | Policy checks        |
 
-# Re-verification
+&#x20;                        | Retry / recovery     |
 
-# &#x20;  |
+&#x20;                        | Verification         |
 
-# &#x20;  v
+&#x20;                        +----------+-----------+
 
-# Final Evidence
+&#x20;                                   |
 
-# ```
+&#x20;                 +-----------------+-----------------+
 
-# 
+&#x20;                 |                                   |
 
-# Supported simulated companies include:
+&#x20;                 v                                   v
 
-# 
+&#x20;       +------------------+                +------------------+
 
-# \- Acme
+&#x20;       |   Task Planner   |                |    Tool Router   |
 
-# \- Globex
+&#x20;       |                  |                |                  |
 
-# \- Initech
+&#x20;       | Groq LLM         |                | Tool registry    |
 
-# 
+&#x20;       | Structured plan  |                | Tool dispatch    |
 
-# \---
+&#x20;       +------------------+                +--------+---------+
 
-# 
+&#x20;                                                    |
 
-# \# 4. Architecture
+&#x20;                +-----------------------------------+----------------------+
 
-# 
+&#x20;                |                                   |                      |
 
-# ```text
+&#x20;                v                                   v                      v
 
-# &#x20;                        +----------------------+
+&#x20;       Invoice Search                       Invoice Reader          Finance System
 
-# &#x20;                        |      User / UI       |
+&#x20;                |                                   |                      |
 
-# &#x20;                        |    Streamlit App     |
+&#x20;                +-------------------+---------------+----------------------+
 
-# &#x20;                        +----------+-----------+
+&#x20;                                    |
 
-# &#x20;                                   |
+&#x20;                                    v
 
-# &#x20;                                   v
+&#x20;                            Verification Tool
 
-# &#x20;                        +----------------------+
+&#x20;                                    |
 
-# &#x20;                        |   Execution Engine   |
+&#x20;                                    v
 
-# &#x20;                        |                      |
+&#x20;                             Human Approval
 
-# &#x20;                        | Task understanding   |
+```
 
-# &#x20;                        | State management     |
+## Main Components
 
-# &#x20;                        | Execution loop       |
+### `app/execution_engine.py`
 
-# &#x20;                        | Policy checks        |
+The central runtime responsible for:
 
-# &#x20;                        | Retry / recovery     |
+- Executing tasks
 
-# &#x20;                        | Verification         |
+- Managing execution state
 
-# &#x20;                        +----------+-----------+
+- Resolving references between steps
 
-# &#x20;                                   |
+- Normalizing planner parameters
 
-# &#x20;                 +-----------------+-----------------+
+- Enforcing company policy
 
-# &#x20;                 |                                   |
+- Pausing and resuming execution
 
-# &#x20;                 v                                   v
+- Bounded retry behavior
 
-# &#x20;       +------------------+                +------------------+
+- Independent verification
 
-# &#x20;       |   Task Planner   |                |    Tool Router   |
+- Failure recovery
 
-# &#x20;       |                  |                |                  |
+- Evidence generation
 
-# &#x20;       | Groq LLM         |                | Tool registry    |
+### `app/agent_planner.py`
 
-# &#x20;       | Structured plan  |                | Tool dispatch    |
+Uses the LLM to convert a natural-language goal into a structured execution plan.
 
-# &#x20;       +------------------+                +--------+---------+
+The planner identifies:
 
-# &#x20;                                                    |
+- Goal
 
-# &#x20;                +-----------------------------------+----------------------+
+- Actions
 
-# &#x20;                |                                   |                      |
+- Tool selection
 
-# &#x20;                v                                   v                      v
+- Parameters
 
-# &#x20;       Invoice Search                       Invoice Reader          Finance System
+- Possible approval requirements
 
-# &#x20;                |                                   |                      |
+The planner **proposes** actions, while the deterministic execution runtime controls what is actually allowed to execute.
 
-# &#x20;                +-------------------+---------------+----------------------+
+### `app/tool_router.py`
 
-# &#x20;                                    |
+Central registry and dispatcher for the available tools.
 
-# &#x20;                                    v
+Current tools:
 
-# &#x20;                            Verification Tool
+- `search_invoices`
 
-# &#x20;                                    |
+- `read_invoice`
 
-# &#x20;                                    v
+- `update_finance_system`
 
-# &#x20;                             Human Approval
+- `verify_invoice`
 
-# ```
+- `request_human_approval`
 
-# 
+### `app/tools/`
 
-# \## Main Components
+Contains the simulated company tools for:
 
-# 
+- Invoice search
 
-# \### `app/execution\_engine.py`
+- Invoice extraction
 
-# 
+- Finance-system updates
 
-# The central runtime responsible for:
+- Invoice verification
 
-# 
+- Human approval
 
-# \- Executing tasks
+### `data/`
 
-# \- Managing execution state
+Contains the controlled company environment:
 
-# \- Resolving references between steps
+```text
 
-# \- Normalizing planner parameters
+data/
 
-# \- Enforcing company policy
+├── invoices/
 
-# \- Pausing and resuming execution
+├── finance/
 
-# \- Bounded retry behavior
+└── company_policy.json
 
-# \- Independent verification
+```
 
-# \- Failure recovery
+---
 
-# \- Evidence generation
+# 5. Important Technical and Design Decisions
 
-# 
+## 5.1 LLM proposes; deterministic runtime controls execution
 
-# \### `app/agent\_planner.py`
+The LLM is used for task understanding and plan generation.
 
-# 
+The execution engine remains responsible for:
 
-# Uses the LLM to convert a natural-language goal into a structured execution plan.
+- Policy enforcement
 
-# 
+- Parameter normalization
 
-# The planner identifies:
+- Tool execution
 
-# 
+- Human approval
 
-# \- Goal
+- Retry behavior
 
-# \- Actions
+- Verification
 
-# \- Tool selection
+- Recovery
 
-# \- Parameters
+- State persistence
 
-# \- Possible approval requirements
+This reduces the risk of allowing an LLM to bypass business controls.
 
-# 
+---
 
-# The planner \*\*proposes\*\* actions, while the deterministic execution runtime controls what is actually allowed to execute.
+## 5.2 Policy-driven human approval
 
-# 
+The simulated company policy defines a high-value threshold of **INR 75,000**.
 
-# \### `app/tool\_router.py`
+The latest Acme invoice used in the main demonstration is:
 
-# 
+```text
 
-# Central registry and dispatcher for the available tools.
+Invoice: ACME-2026-003
 
-# 
+Amount: INR 84,500
 
-# Current tools:
+```
 
-# 
+Because the amount exceeds the configured threshold, the worker pauses before modifying the finance system and requests human approval.
 
-# \- `search\_invoices`
+The policy check is enforced by the execution engine rather than trusting the planner alone.
 
-# \- `read\_invoice`
+The flow is:
 
-# \- `update\_finance\_system`
+```text
 
-# \- `verify\_invoice`
+Safe preparatory work
 
-# \- `request\_human\_approval`
+&#x20;       |
 
-# 
+&#x20;       v
 
-# \### `app/tools/`
+Policy check
 
-# 
+&#x20;       |
 
-# Contains the simulated company tools for:
+&#x20;       v
 
-# 
+Human approval required
 
-# \- Invoice search
+&#x20;       |
 
-# \- Invoice extraction
+&#x20;       v
 
-# \- Finance-system updates
+Pause
 
-# \- Invoice verification
+&#x20;       |
 
-# \- Human approval
+&#x20;       v
 
-# 
+Approve / Reject
 
-# \### `data/`
+```
 
-# 
+---
 
-# Contains the controlled company environment:
+## 5.3 Resumable execution
 
-# 
+When approval is required, the worker:
 
-# ```text
+1\. Completes safe preparatory work.
 
-# data/
+2\. Persists execution state.
 
-# ├── invoices/
+3\. Pauses before the sensitive action.
 
-# ├── finance/
+4\. Waits for human approval.
 
-# └── company\_policy.json
+5\. Restores the paused execution state.
 
-# ```
+6\. Resumes from the blocked step.
 
-# 
+This avoids unnecessarily repeating already completed work.
 
-# \---
+---
 
-# 
+## 5.4 Independent verification
 
-# \# 5. Important Technical and Design Decisions
+A successful tool call is not treated as proof that the business objective was achieved.
 
-# 
+The verification tool compares the saved finance record against trusted invoice information.
 
-# \## 5.1 LLM proposes; deterministic runtime controls execution
+The system therefore distinguishes:
 
-# 
+```text
 
-# The LLM is used for task understanding and plan generation.
+Tool execution success
 
-# 
+&#x20;       !=
 
-# The execution engine remains responsible for:
+Business outcome verified
 
-# 
+```
 
-# \- Policy enforcement
+The final completion state is based on the verified business result rather than merely on a successful tool invocation.
 
-# \- Parameter normalization
+---
 
-# \- Tool execution
+## 5.5 Bounded retries
 
-# \- Human approval
+Only failures considered transient are retried.
 
-# \- Retry behavior
+Examples include:
 
-# \- Verification
+- Timeout
 
-# \- Recovery
+- Temporary service unavailability
 
-# \- State persistence
+- Connection reset or refused
 
-# 
+- Rate limiting
 
-# This reduces the risk of allowing an LLM to bypass business controls.
+- HTTP 500/502/503/504
 
-# 
+Semantic or business failures such as:
 
-# \---
+```text
 
-# 
+Invoice not found
 
-# \## 5.2 Policy-driven human approval
+```
 
-# 
+are not blindly retried.
 
-# The simulated company policy defines a high-value threshold of \*\*INR 75,000\*\*.
+Retry behavior is bounded to prevent uncontrolled execution loops.
 
-# 
+---
 
-# The latest Acme invoice used in the main demonstration is:
+## 5.6 Verification failure recovery
 
-# 
+The prototype includes a controlled failure-injection mode.
 
-# ```text
+A finance update can intentionally produce an incorrect saved value.
 
-# Invoice: ACME-2026-003
+The worker then follows:
 
-# Amount: INR 84,500
+```text
 
-# ```
+Finance Update
 
-# 
+&#x20;     |
 
-# Because the amount exceeds the configured threshold, the worker pauses before modifying the finance system and requests human approval.
+&#x20;     v
 
-# 
+Verification
 
-# The policy check is enforced by the execution engine rather than trusting the planner alone.
+&#x20;     |
 
-# 
+&#x20;     v
 
-# The flow is:
+Mismatch Detected
 
-# 
+&#x20;     |
 
-# ```text
+&#x20;     v
 
-# Safe preparatory work
+Recovery using trusted invoice data
 
-# &#x20;       |
+&#x20;     |
 
-# &#x20;       v
+&#x20;     v
 
-# Policy check
+Correct Record
 
-# &#x20;       |
+&#x20;     |
 
-# &#x20;       v
+&#x20;     v
 
-# Human approval required
+Re-verification
 
-# &#x20;       |
+&#x20;     |
 
-# &#x20;       v
+&#x20;     v
 
-# Pause
+Completed
 
-# &#x20;       |
+```
 
-# &#x20;       v
+This demonstrates observation and adaptation rather than simply executing a predetermined sequence.
 
-# Approve / Reject
+---
 
-# ```
+## 5.7 Clarification before execution
 
-# 
+The worker does not blindly guess missing information.
 
-# \---
+For example:
 
-# 
+```text
 
-# \## 5.3 Resumable execution
+Find the latest invoice.
 
-# 
+```
 
-# When approval is required, the worker:
+does not contain enough information to determine the company.
 
-# 
+The worker therefore asks which company should be searched.
 
-# 1\. Completes safe preparatory work.
+Likewise:
 
-# 2\. Persists execution state.
+```text
 
-# 3\. Pauses before the sensitive action.
+Handle the Acme invoice.
 
-# 4\. Waits for human approval.
+```
 
-# 5\. Restores the paused execution state.
+is treated as ambiguous because the requested action is unclear.
 
-# 6\. Resumes from the blocked step.
+The worker requests clarification before executing tools.
 
-# 
+---
 
-# This avoids unnecessarily repeating already completed work.
+# 6. Demonstrated Scenarios
 
-# 
+## Scenario 1 — Autonomous invoice workflow
 
-# \---
+Example task:
 
-# 
+```text
 
-# \## 5.4 Independent verification
+Find the latest invoice from Acme, extract the amount and due date,
 
-# 
+enter it into the internal finance system, and verify that the update
 
-# A successful tool call is not treated as proof that the business objective was achieved.
+was completed correctly.
 
-# 
+```
 
-# The verification tool compares the saved finance record against trusted invoice information.
+Expected flow:
 
-# 
+```text
 
-# The system therefore distinguishes:
+Search
 
-# 
+&#x20;  ->
 
-# ```text
+Extraction
 
-# Tool execution success
+&#x20;  ->
 
-# &#x20;       !=
+Policy Check
 
-# Business outcome verified
+&#x20;  ->
 
-# ```
+Approval if required
 
-# 
+&#x20;  ->
 
-# The final completion state is based on the verified business result rather than merely on a successful tool invocation.
+Finance Update
 
-# 
+&#x20;  ->
 
-# \---
+Verification
 
-# 
+&#x20;  ->
 
-# \## 5.5 Bounded retries
+Completion
 
-# 
+```
 
-# Only failures considered transient are retried.
+---
 
-# 
+## Scenario 2 — Human approval
 
-# Examples include:
+The latest Acme invoice exceeds the configured high-value threshold.
 
-# 
+The interface displays:
 
-# \- Timeout
+```text
 
-# \- Temporary service unavailability
+Invoice: ACME-2026-003
 
-# \- Connection reset or refused
+Amount: INR 84,500
 
-# \- Rate limiting
+Approval threshold: INR 75,000
 
-# \- HTTP 500/502/503/504
+```
 
-# 
+The worker pauses before the sensitive finance action.
 
-# Semantic or business failures such as:
+The user can:
 
-# 
+- Approve and continue
 
-# ```text
+- Reject the action
 
-# Invoice not found
+---
 
-# ```
+## Scenario 3 — Failure recovery
 
-# 
+The Streamlit interface contains a **Reliability Lab** option:
 
-# are not blindly retried.
+```text
 
-# 
+Inject one recoverable verification failure
 
-# Retry behavior is bounded to prevent uncontrolled execution loops.
+```
 
-# 
+When enabled, the worker demonstrates:
 
-# \---
+```text
 
-# 
+Incorrect Update
 
-# \## 5.6 Verification failure recovery
+&#x20;  ->
 
-# 
+Verification Mismatch
 
-# The prototype includes a controlled failure-injection mode.
+&#x20;  ->
 
-# 
+Recovery
 
-# A finance update can intentionally produce an incorrect saved value.
+&#x20;  ->
 
-# 
+Corrected Update
 
-# The worker then follows:
+&#x20;  ->
 
-# 
+Re-verification
 
-# ```text
+&#x20;  ->
 
-# Finance Update
+Completed
 
-# &#x20;     |
+```
 
-# &#x20;     v
+---
 
-# Verification
+## Scenario 4 — Clarification
 
-# &#x20;     |
+Example:
 
-# &#x20;     v
+```text
 
-# Mismatch Detected
+Find the latest invoice.
 
-# &#x20;     |
+```
 
-# &#x20;     v
+The worker identifies the missing company information and asks for clarification instead of guessing.
 
-# Recovery using trusted invoice data
+---
 
-# &#x20;     |
+## Scenario 5 — Different company
 
-# &#x20;     v
+The same execution engine can handle different simulated companies such as:
 
-# Correct Record
+- Globex
 
-# &#x20;     |
+- Initech
 
-# &#x20;     v
+without changing the core execution engine.
 
-# Re-verification
+---
 
-# &#x20;     |
+# 7. Testing
 
-# &#x20;     v
+The repository contains tests for the main reliability behaviors:
 
-# Completed
+```text
 
-# ```
+tests/
 
-# 
+├── test_autonomous_worker.py
 
-# This demonstrates observation and adaptation rather than simply executing a predetermined sequence.
+├── test_generalization.py
 
-# 
+├── test_failure_handling.py
 
-# \---
+└── test_clarification.py
 
-# 
+```
 
-# \## 5.7 Clarification before execution
+The test coverage includes:
 
-# 
+- Autonomous invoice workflows
 
-# The worker does not blindly guess missing information.
+- Different-company workflows
 
-# 
+- Invoice extraction
 
-# For example:
+- Verification-only workflows
 
-# 
+- Human approval
 
-# ```text
+- Resume after approval
 
-# Find the latest invoice.
+- Transient failure retry
 
-# ```
+- Semantic failure handling
 
-# 
+- Verification failure recovery
 
-# does not contain enough information to determine the company.
+- Clarification for incomplete tasks
 
-# 
+The generalization suite specifically exercises:
 
-# The worker therefore asks which company should be searched.
+```text
 
-# 
+Different company lookup
 
-# Likewise:
+Different company extraction
 
-# 
+Verification-only workflow
 
-# ```text
+Human approval + resume
 
-# Handle the Acme invoice.
+Failure detection + recovery
 
-# ```
+```
 
-# 
+---
 
-# is treated as ambiguous because the requested action is unclear.
+# 8. Project Structure
 
-# 
+```text
 
-# The worker requests clarification before executing tools.
+CentrAlign/
 
-# 
+|
 
-# \---
+├── app/
 
-# 
+|   ├── __init__.py
 
-# \# 6. Demonstrated Scenarios
+|   ├── execution_engine.py
 
-# 
+|   ├── agent_planner.py
 
-# \## Scenario 1 — Autonomous invoice workflow
+|   ├── tool_router.py
 
-# 
+|   |
 
-# Example task:
+|   ├── llm/
 
-# 
+|   |   ├── __init__.py
 
-# ```text
+|   |   └── groq_client.py
 
-# Find the latest invoice from Acme, extract the amount and due date,
+|   |
 
-# enter it into the internal finance system, and verify that the update
+|   └── tools/
 
-# was completed correctly.
+|       ├── __init__.py
 
-# ```
+|       ├── invoice_search.py
 
-# 
+|       ├── invoice_reader.py
 
-# Expected flow:
+|       ├── finance_system.py
 
-# 
+|       ├── invoice_verification.py
 
-# ```text
+|       └── human_approval.py
 
-# Search
+|
 
-# &#x20;  ->
+├── data/
 
-# Extraction
+|   ├── invoices/
 
-# &#x20;  ->
+|   ├── finance/
 
-# Policy Check
+|   └── company_policy.json
 
-# &#x20;  ->
+|
 
-# Approval if required
+├── tests/
 
-# &#x20;  ->
+|   ├── test_autonomous_worker.py
 
-# Finance Update
+|   ├── test_generalization.py
 
-# &#x20;  ->
+|   ├── test_failure_handling.py
 
-# Verification
+|   └── test_clarification.py
 
-# &#x20;  ->
+|
 
-# Completion
+├── app/streamlit_app.py
 
-# ```
+├── streamlit_app.py
 
-# 
+├── requirements.txt
 
-# \---
+├── .env.example
 
-# 
+├── .gitignore
 
-# \## Scenario 2 — Human approval
+└── README.md
 
-# 
+```
 
-# The latest Acme invoice exceeds the configured high-value threshold.
+---
 
-# 
+# 9. Setup
 
-# The interface displays:
+## Prerequisites
 
-# 
+- Python 3.10+
 
-# ```text
+- Git
 
-# Invoice: ACME-2026-003
+- Groq API key
 
-# Amount: INR 84,500
+## Clone the repository
 
-# Approval threshold: INR 75,000
+```bash
 
-# ```
+git clone https://github.com/RishabhGuptaX/CentrAlign.git
 
-# 
+cd CentrAlign
 
-# The worker pauses before the sensitive finance action.
+```
 
-# 
+## Create a virtual environment
 
-# The user can:
+### Windows PowerShell
 
-# 
+```powershell
 
-# \- Approve and continue
+python -m venv .venv
 
-# \- Reject the action
+.\\.venv\\Scripts\\Activate.ps1
 
-# 
+```
 
-# \---
+### macOS / Linux
 
-# 
+```bash
 
-# \## Scenario 3 — Failure recovery
+python -m venv .venv
 
-# 
+source .venv/bin/activate
 
-# The Streamlit interface contains a \*\*Reliability Lab\*\* option:
+```
 
-# 
+## Install dependencies
 
-# ```text
+```bash
 
-# Inject one recoverable verification failure
+pip install -r requirements.txt
 
-# ```
+```
 
-# 
+## Configure the Groq API
 
-# When enabled, the worker demonstrates:
+Create a local `.env` file:
 
-# 
+```text
 
-# ```text
+GROQ_API_KEY=your_groq_api_key
 
-# Incorrect Update
+GROQ_MODEL=openai/gpt-oss-20b
 
-# &#x20;  ->
+```
 
-# Verification Mismatch
+The `.env` file is excluded from Git through `.gitignore`.
 
-# &#x20;  ->
+**Never commit API keys or real company credentials.**
 
-# Recovery
+---
 
-# &#x20;  ->
+# 10. Run Locally
 
-# Corrected Update
+From the repository root:
 
-# &#x20;  ->
+```bash
 
-# Re-verification
+streamlit run streamlit_app.py
 
-# &#x20;  ->
+```
 
-# Completed
+The root entrypoint imports the main Streamlit application from:
 
-# ```
+```text
 
-# 
+app/streamlit_app.py
 
-# \---
+```
 
-# 
+---
 
-# \## Scenario 4 — Clarification
+# 11. Live Deployment
 
-# 
+The live application is available at:
 
-# Example:
+**https://centralign-project.streamlit.app/**
 
-# 
+Deployment configuration:
 
-# ```text
+```text
 
-# Find the latest invoice.
+Repository: RishabhGuptaX/CentrAlign
 
-# ```
+Branch: main
 
-# 
+Main file: streamlit_app.py
 
-# The worker identifies the missing company information and asks for clarification instead of guessing.
+```
 
-# 
+Configure Streamlit Cloud Secrets:
 
-# \---
+```toml
 
-# 
+GROQ_API_KEY = "your_groq_api_key"
 
-# \## Scenario 5 — Different company
+GROQ_MODEL = "openai/gpt-oss-20b"
 
-# 
+```
 
-# The same execution engine can handle different simulated companies such as:
+The API key is not stored in the GitHub repository.
 
-# 
+---
 
-# \- Globex
+# 12. Models, APIs, Frameworks and External Services
 
-# \- Initech
+## Model
 
-# 
+**Groq API**
 
-# without changing the core execution engine.
+Configured model:
 
-# 
+```text
 
-# \---
+openai/gpt-oss-20b
 
-# 
+```
 
-# \# 7. Testing
+The model is used primarily for task understanding and execution-plan generation.
 
-# 
+## Frameworks and libraries
 
-# The repository contains tests for the main reliability behaviors:
+- Python
 
-# 
+- Streamlit
 
-# ```text
+- Groq Python SDK
 
-# tests/
+- python-dotenv
 
-# ├── test\_autonomous\_worker.py
+- FastAPI
 
-# ├── test\_generalization.py
+- Uvicorn
 
-# ├── test\_failure\_handling.py
+- Pydantic
 
-# └── test\_clarification.py
+- Pandas
 
-# ```
+- Requests
 
-# 
+- Pytest
 
-# The test coverage includes:
+## External services
 
-# 
+- Groq API
 
-# \- Autonomous invoice workflows
+- GitHub
 
-# \- Different-company workflows
+- Streamlit Community Cloud
 
-# \- Invoice extraction
+## AI-assisted development
 
-# \- Verification-only workflows
+ChatGPT was used during development for:
 
-# \- Human approval
+- Coding assistance
 
-# \- Resume after approval
+- Debugging
 
-# \- Transient failure retry
+- Testing support
 
-# \- Semantic failure handling
+- Iteration and refinement
 
-# \- Verification failure recovery
+The submitted implementation and architecture were reviewed and validated during development and testing.
 
-# \- Clarification for incomplete tasks
+---
 
-# 
+# 13. Assumptions
 
-# The generalization suite specifically exercises:
+The prototype makes the following assumptions:
 
-# 
+1\. The finance application can be represented by a controlled simulated system.
 
-# ```text
+2\. Invoice information is available through structured files.
 
-# Different company lookup
+3\. Company policy can be represented as structured configuration.
 
-# Different company extraction
+4\. Human approval can be represented through the Streamlit interface.
 
-# Verification-only workflow
+5\. The available tool set is intentionally small.
 
-# Human approval + resume
+6\. The prototype does not attempt to operate arbitrary websites or desktop applications.
 
-# Failure detection + recovery
+7\. The controlled environment is sufficient to demonstrate planning, execution, observation, adaptation, verification, and human-in-the-loop behavior.
 
-# ```
+---
 
-# 
+# 14. Known Limitations
 
-# \---
+This is a prototype rather than a production AI employee.
 
-# 
+## Limited environment
 
-# \# 8. Project Structure
+The worker currently operates against a controlled invoice and finance environment.
 
-# 
+It does not yet operate arbitrary enterprise websites, desktop applications, or business systems.
 
-# ```text
+## Limited tool set
 
-# CentrAlign/
+Only a small set of invoice and finance tools is currently available.
 
-# |
+## LLM dependency
 
-# ├── app/
+Planning depends partly on the LLM's ability to produce a valid structured plan.
 
-# |   ├── \_\_init\_\_.py
+The deterministic execution runtime provides validation, normalization, policy enforcement, retry control, and verification around the planner.
 
-# |   ├── execution\_engine.py
+## Local persistence
 
-# |   ├── agent\_planner.py
+Paused execution state is currently stored locally.
 
-# |   ├── tool\_router.py
+A production implementation would require durable shared storage.
 
-# |   |
+## Single-worker execution
 
-# |   ├── llm/
+The prototype focuses on a single task execution flow.
 
-# |   |   ├── \_\_init\_\_.py
+It does not yet provide distributed task queues, scheduling, or multi-worker orchestration.
 
-# |   |   └── groq\_client.py
+## Production security
 
-# |   |
+A production deployment would require stronger:
 
-# |   └── tools/
+- Authentication
 
-# |       ├── \_\_init\_\_.py
+- Authorization
 
-# |       ├── invoice\_search.py
+- Tool permissions
 
-# |       ├── invoice\_reader.py
+- Secret management
 
-# |       ├── finance\_system.py
+- Audit controls
 
-# |       ├── invoice\_verification.py
+- Isolation
 
-# |       └── human\_approval.py
+- Multi-tenant security
 
-# |
+---
 
-# ├── data/
+# 15. What I Would Build Next
 
-# |   ├── invoices/
+## 1. Reusable connector framework
 
-# |   ├── finance/
+Introduce a common connector abstraction for:
 
-# |   └── company\_policy.json
+```text
 
-# |
+Browser
 
-# ├── tests/
+Files
 
-# |   ├── test\_autonomous\_worker.py
+REST APIs
 
-# |   ├── test\_generalization.py
+Databases
 
-# |   ├── test\_failure\_handling.py
+Internal enterprise applications
 
-# |   └── test\_clarification.py
+SaaS tools
 
-# |
+```
 
-# ├── app/streamlit\_app.py
+This would allow the same execution engine to support more enterprise workflows.
 
-# ├── streamlit\_app.py
+## 2. Durable execution runtime
 
-# ├── requirements.txt
+Introduce:
 
-# ├── .env.example
+- Persistent task state
 
-# ├── .gitignore
+- Task queues
 
-# └── README.md
+- Background execution
 
-# ```
+- Scheduling
 
-# 
+- Idempotency
 
-# \---
+- Distributed retries
 
-# 
+## 3. Stronger permission model
 
-# \# 9. Setup
+Move from a single financial threshold to action-level authorization such as:
 
-# 
+```text
 
-# \## Prerequisites
+Read
 
-# 
+Write
 
-# \- Python 3.10+
+Delete
 
-# \- Git
+Financial action
 
-# \- Groq API key
+External communication
 
-# 
+Credentialed action
 
-# \## Clone the repository
+High-risk action
 
-# 
+```
 
-# ```bash
+Each action could then be authorized independently before execution.
 
-# git clone https://github.com/RishabhGuptaX/CentrAlign.git
+## 4. Stronger verification
 
-# cd CentrAlign
+Add verification mechanisms such as:
 
-# ```
+- API confirmation
 
-# 
+- Database checks
 
-# \## Create a virtual environment
+- State validation
 
-# 
+- Document comparison
 
-# \### Windows PowerShell
+- Cross-system consistency checks
 
-# 
+## 5. Evaluation framework
 
-# ```powershell
+Build a broader evaluation suite measuring:
 
-# python -m venv .venv
+- Completion rate
 
-# .\\.venv\\Scripts\\Activate.ps1
+- Verification accuracy
 
-# ```
+- Recovery rate
 
-# 
+- Retry correctness
 
-# \### macOS / Linux
+- Human intervention rate
 
-# 
+- Cost
 
-# ```bash
+- Latency
 
-# python -m venv .venv
+- Failure modes
 
-# source .venv/bin/activate
+## 6. Enterprise memory
 
-# ```
+Add company-specific memory for:
 
-# 
+- Policies
 
-# \## Install dependencies
+- Workflows
 
-# 
+- Tool capabilities
 
-# ```bash
+- Terminology
 
-# pip install -r requirements.txt
+- Historical outcomes
 
-# ```
+- User preferences
 
-# 
+---
 
-# \## Configure the Groq API
+# 16. Demo Walkthrough
 
-# 
+## Demo 1 — Normal workflow
 
-# Create a local `.env` file:
+Run:
 
-# 
+```text
 
-# ```text
+Find the latest invoice from Acme, extract the amount and due date,
 
-# GROQ\_API\_KEY=your\_groq\_api\_key
+enter it into the internal finance system, and verify that the update
 
-# GROQ\_MODEL=openai/gpt-oss-20b
+was completed correctly.
 
-# ```
+```
 
-# 
+Show:
 
-# The `.env` file is excluded from Git through `.gitignore`.
+```text
 
-# 
+Search
 
-# \*\*Never commit API keys or real company credentials.\*\*
+->
 
-# 
+Extraction
 
-# \---
+->
 
-# 
+Human Checkpoint
 
-# \# 10. Run Locally
+->
 
-# 
+Approval
 
-# From the repository root:
+->
 
-# 
+Finance Update
 
-# ```bash
+->
 
-# streamlit run streamlit\_app.py
+Verification
 
-# ```
+->
 
-# 
+Completion
 
-# The root entrypoint imports the main Streamlit application from:
+```
 
-# 
+## Demo 2 — Reliability
 
-# ```text
+Enable:
 
-# app/streamlit\_app.py
+```text
 
-# ```
+Inject one recoverable verification failure
 
-# 
+```
 
-# \---
+Then demonstrate:
 
-# 
+```text
 
-# \# 11. Live Deployment
+Incorrect Update
 
-# 
+->
 
-# The live application is available at:
+Mismatch Detection
 
-# 
+->
 
-# \*\*https://centralign-project.streamlit.app/\*\*
+Recovery
 
-# 
+->
 
-# Deployment configuration:
+Re-verification
 
-# 
+->
 
-# ```text
+Completion
 
-# Repository: RishabhGuptaX/CentrAlign
+```
 
-# Branch: main
+## Demo 3 — Clarification
 
-# Main file: streamlit\_app.py
+Run:
 
-# ```
+```text
 
-# 
+Find the latest invoice.
 
-# Configure Streamlit Cloud Secrets:
+```
 
-# 
+Show that the worker requests the missing company information rather than guessing.
 
-# ```toml
+---
 
-# GROQ\_API\_KEY = "your\_groq\_api\_key"
+# 17. Safety and Scope
 
-# GROQ\_MODEL = "openai/gpt-oss-20b"
+The prototype uses a simulated company environment and does not require real company credentials or unauthorized access to third-party systems.
 
-# ```
+Sensitive finance actions are controlled by simulated company policy and a human approval checkpoint.
 
-# 
+The narrow scope is deliberate: the objective is to demonstrate genuine autonomous execution, reliability, verification, and human oversight in a controlled environment.
 
-# The API key is not stored in the GitHub repository.
+---
 
-# 
+# 18. Final Links
 
-# \---
+**GitHub Repository**
 
-# 
+https://github.com/RishabhGuptaX/CentrAlign
 
-# \# 12. Models, APIs, Frameworks and External Services
+**Live Demo**
 
-# 
+https://centralign-project.streamlit.app/
 
-# \## Model
+---
 
-# 
+# 19. Assessment Alignment
 
-# \*\*Groq API\*\*
+The prototype is designed around the assessment's core evaluation areas:
 
-# 
+```text
 
-# Configured model:
+Autonomy
 
-# 
+Execution
 
-# ```text
+Reliability
 
-# openai/gpt-oss-20b
+Verification
 
-# ```
+Generalization
 
-# 
+Engineering Quality
 
-# The model is used primarily for task understanding and execution-plan generation.
+Product Thinking
 
-# 
+Technical Understanding
 
-# \## Frameworks and libraries
+```
 
-# 
-
-# \- Python
-
-# \- Streamlit
-
-# \- Groq Python SDK
-
-# \- python-dotenv
-
-# \- FastAPI
-
-# \- Uvicorn
-
-# \- Pydantic
-
-# \- Pandas
-
-# \- Requests
-
-# \- Pytest
-
-# 
-
-# \## External services
-
-# 
-
-# \- Groq API
-
-# \- GitHub
-
-# \- Streamlit Community Cloud
-
-# 
-
-# \## AI-assisted development
-
-# 
-
-# ChatGPT was used during development for:
-
-# 
-
-# \- Coding assistance
-
-# \- Debugging
-
-# \- Testing support
-
-# \- Iteration and refinement
-
-# 
-
-# The submitted implementation and architecture were reviewed and validated during development and testing.
-
-# 
-
-# \---
-
-# 
-
-# \# 13. Assumptions
-
-# 
-
-# The prototype makes the following assumptions:
-
-# 
-
-# 1\. The finance application can be represented by a controlled simulated system.
-
-# 2\. Invoice information is available through structured files.
-
-# 3\. Company policy can be represented as structured configuration.
-
-# 4\. Human approval can be represented through the Streamlit interface.
-
-# 5\. The available tool set is intentionally small.
-
-# 6\. The prototype does not attempt to operate arbitrary websites or desktop applications.
-
-# 7\. The controlled environment is sufficient to demonstrate planning, execution, observation, adaptation, verification, and human-in-the-loop behavior.
-
-# 
-
-# \---
-
-# 
-
-# \# 14. Known Limitations
-
-# 
-
-# This is a prototype rather than a production AI employee.
-
-# 
-
-# \## Limited environment
-
-# 
-
-# The worker currently operates against a controlled invoice and finance environment.
-
-# 
-
-# It does not yet operate arbitrary enterprise websites, desktop applications, or business systems.
-
-# 
-
-# \## Limited tool set
-
-# 
-
-# Only a small set of invoice and finance tools is currently available.
-
-# 
-
-# \## LLM dependency
-
-# 
-
-# Planning depends partly on the LLM's ability to produce a valid structured plan.
-
-# 
-
-# The deterministic execution runtime provides validation, normalization, policy enforcement, retry control, and verification around the planner.
-
-# 
-
-# \## Local persistence
-
-# 
-
-# Paused execution state is currently stored locally.
-
-# 
-
-# A production implementation would require durable shared storage.
-
-# 
-
-# \## Single-worker execution
-
-# 
-
-# The prototype focuses on a single task execution flow.
-
-# 
-
-# It does not yet provide distributed task queues, scheduling, or multi-worker orchestration.
-
-# 
-
-# \## Production security
-
-# 
-
-# A production deployment would require stronger:
-
-# 
-
-# \- Authentication
-
-# \- Authorization
-
-# \- Tool permissions
-
-# \- Secret management
-
-# \- Audit controls
-
-# \- Isolation
-
-# \- Multi-tenant security
-
-# 
-
-# \---
-
-# 
-
-# \# 15. What I Would Build Next
-
-# 
-
-# \## 1. Reusable connector framework
-
-# 
-
-# Introduce a common connector abstraction for:
-
-# 
-
-# ```text
-
-# Browser
-
-# Files
-
-# REST APIs
-
-# Databases
-
-# Internal enterprise applications
-
-# SaaS tools
-
-# ```
-
-# 
-
-# This would allow the same execution engine to support more enterprise workflows.
-
-# 
-
-# \## 2. Durable execution runtime
-
-# 
-
-# Introduce:
-
-# 
-
-# \- Persistent task state
-
-# \- Task queues
-
-# \- Background execution
-
-# \- Scheduling
-
-# \- Idempotency
-
-# \- Distributed retries
-
-# 
-
-# \## 3. Stronger permission model
-
-# 
-
-# Move from a single financial threshold to action-level authorization such as:
-
-# 
-
-# ```text
-
-# Read
-
-# Write
-
-# Delete
-
-# Financial action
-
-# External communication
-
-# Credentialed action
-
-# High-risk action
-
-# ```
-
-# 
-
-# Each action could then be authorized independently before execution.
-
-# 
-
-# \## 4. Stronger verification
-
-# 
-
-# Add verification mechanisms such as:
-
-# 
-
-# \- API confirmation
-
-# \- Database checks
-
-# \- State validation
-
-# \- Document comparison
-
-# \- Cross-system consistency checks
-
-# 
-
-# \## 5. Evaluation framework
-
-# 
-
-# Build a broader evaluation suite measuring:
-
-# 
-
-# \- Completion rate
-
-# \- Verification accuracy
-
-# \- Recovery rate
-
-# \- Retry correctness
-
-# \- Human intervention rate
-
-# \- Cost
-
-# \- Latency
-
-# \- Failure modes
-
-# 
-
-# \## 6. Enterprise memory
-
-# 
-
-# Add company-specific memory for:
-
-# 
-
-# \- Policies
-
-# \- Workflows
-
-# \- Tool capabilities
-
-# \- Terminology
-
-# \- Historical outcomes
-
-# \- User preferences
-
-# 
-
-# \---
-
-# 
-
-# \# 16. Demo Walkthrough
-
-# 
-
-# \## Demo 1 — Normal workflow
-
-# 
-
-# Run:
-
-# 
-
-# ```text
-
-# Find the latest invoice from Acme, extract the amount and due date,
-
-# enter it into the internal finance system, and verify that the update
-
-# was completed correctly.
-
-# ```
-
-# 
-
-# Show:
-
-# 
-
-# ```text
-
-# Search
-
-# \->
-
-# Extraction
-
-# \->
-
-# Human Checkpoint
-
-# \->
-
-# Approval
-
-# \->
-
-# Finance Update
-
-# \->
-
-# Verification
-
-# \->
-
-# Completion
-
-# ```
-
-# 
-
-# \## Demo 2 — Reliability
-
-# 
-
-# Enable:
-
-# 
-
-# ```text
-
-# Inject one recoverable verification failure
-
-# ```
-
-# 
-
-# Then demonstrate:
-
-# 
-
-# ```text
-
-# Incorrect Update
-
-# \->
-
-# Mismatch Detection
-
-# \->
-
-# Recovery
-
-# \->
-
-# Re-verification
-
-# \->
-
-# Completion
-
-# ```
-
-# 
-
-# \## Demo 3 — Clarification
-
-# 
-
-# Run:
-
-# 
-
-# ```text
-
-# Find the latest invoice.
-
-# ```
-
-# 
-
-# Show that the worker requests the missing company information rather than guessing.
-
-# 
-
-# \---
-
-# 
-
-# \# 17. Safety and Scope
-
-# 
-
-# The prototype uses a simulated company environment and does not require real company credentials or unauthorized access to third-party systems.
-
-# 
-
-# Sensitive finance actions are controlled by simulated company policy and a human approval checkpoint.
-
-# 
-
-# The narrow scope is deliberate: the objective is to demonstrate genuine autonomous execution, reliability, verification, and human oversight in a controlled environment.
-
-# 
-
-# \---
-
-# 
-
-# \# 18. Final Links
-
-# 
-
-# \*\*GitHub Repository\*\*
-
-# 
-
-# https://github.com/RishabhGuptaX/CentrAlign
-
-# 
-
-# \*\*Live Demo\*\*
-
-# 
-
-# https://centralign-project.streamlit.app/
-
-# 
-
-# \---
-
-# 
-
-# \# 19. Assessment Alignment
-
-# 
-
-# The prototype is designed around the assessment's core evaluation areas:
-
-# 
-
-# ```text
-
-# Autonomy
-
-# Execution
-
-# Reliability
-
-# Verification
-
-# Generalization
-
-# Engineering Quality
-
-# Product Thinking
-
-# Technical Understanding
-
-# ```
-
-# 
-
-# The implementation prioritizes genuine task execution, controlled tool use, human oversight, failure recovery, and independent verification over feature count.
+The implementation prioritizes genuine task execution, controlled tool use, human oversight, failure recovery, and independent verification over feature count.
 
