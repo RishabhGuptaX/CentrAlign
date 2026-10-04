@@ -1054,6 +1054,6 @@ if isinstance(result, dict):
 st.divider()
 
 st.caption(
-    "CentrAlign AI Â· Autonomous task execution sandbox"
+    "CentrAlign AI | Autonomous task execution sandbox"
 )
 
